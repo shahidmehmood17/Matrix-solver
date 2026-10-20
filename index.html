@@ -76,6 +76,12 @@ h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
 .cs>div{padding:14px;border:2px solid var(--vc);border-radius:10px;background:color-mix(in srgb,var(--vc) 9%,transparent)}
 .cs code{font:600 14px 'IBM Plex Mono',monospace}
 .mut{color:var(--mut);font-size:14.5px;margin:0}
+/* Site footer */
+.site-footer{max-width:900px;margin:8px auto 0;padding:22px 14px 28px;text-align:center;color:var(--mut);font-size:13px;border-top:1px solid var(--ln)}
+.site-footer p{margin:4px 0}
+.site-footer a{color:var(--b1);text-decoration:none;font-weight:700;overflow-wrap:anywhere}
+.site-footer a:hover{text-decoration:underline}
+.site-footer .copyright{color:var(--ink);font-weight:700}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -123,6 +129,11 @@ h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
  <p class="mut">After elimination, a row <code>0 0 0 | c</code> with c ≠ 0 means inconsistent. A row <code>0 0 0 | 0</code> carries no information and drops out.</p>
 </section>
 </div>
+
+<footer class="site-footer" aria-label="Website footer">
+  <p class="copyright">© 2026 Shahid Mehmood.co. All rights reserved.</p>
+  <p><a href="mailto:shahidmehmood2386@gmail.com">shahidmehmood2386@gmail.com</a></p>
+</footer>
 
 <script>
 const $=s=>document.querySelector(s),SUB='₁₂₃₄₅₆₇';

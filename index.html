@@ -59,9 +59,9 @@ h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
 .sol div{padding:8px 16px;border:2px solid var(--ink);border-radius:8px;background:var(--cell);font:600 20px 'IBM Plex Mono',monospace}
 .sol b{color:var(--b1)}
 .st{margin-top:12px;padding:12px 14px;border:1.5px solid var(--ln);border-left:5px solid var(--b1);border-radius:4px 12px 12px 4px;background:var(--cell)}
-.sh{display:flex;gap:10px;align-items:flex-start}
-.sh p{margin:2px 0 6px;font-weight:700;font-size:15px}
-.sn{flex:none;min-width:28px;height:28px;border-radius:6px;background:var(--ink);color:var(--card);font-size:14px;font-weight:800;display:grid;place-items:center}
+.sh{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.sh p{margin:0;min-width:0;max-width:100%;padding:6px 11px;border:1.5px solid var(--ln);border-left:4px solid var(--b1);border-radius:8px;background:var(--soft);color:var(--ink);font-weight:800;font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.sn{flex:none;min-width:30px;height:30px;padding:0 5px;border:1.5px solid var(--ln);border-radius:7px;background:var(--b1);color:var(--onb);font-size:14px;font-weight:800;display:grid;place-items:center;box-shadow:2px 2px 0 var(--sh)}
 .mw{overflow-x:auto;padding:4px 2px}
 .mx{display:inline-grid;gap:4px 6px;padding:8px 12px;border:solid var(--ink);border-width:0 3px;border-radius:8px}
 .mx div{min-width:42px;padding:6px 8px;border-radius:5px;text-align:center;font:600 16px 'IBM Plex Mono',monospace;white-space:nowrap}
@@ -75,7 +75,20 @@ h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
 .cs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
 .cs>div{padding:14px;border:2px solid var(--vc);border-radius:10px;background:color-mix(in srgb,var(--vc) 9%,transparent)}
 .cs code{font:600 14px 'IBM Plex Mono',monospace}
+.answer-card{border-color:var(--hi);box-shadow:5px 5px 0 var(--hi)}
+.answer-card>h2{display:flex;align-items:center;gap:8px}
+.answer-card>h2:before{content:"✓";display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--hi);color:var(--hit);font-size:16px}
 .mut{color:var(--mut);font-size:14.5px;margin:0}
+.quick-input{margin-top:14px;padding:14px;border:1.5px dashed var(--ln);border-radius:12px;background:color-mix(in srgb,var(--soft) 45%,transparent)}
+.quick-input textarea{display:block;width:100%;min-height:105px;resize:vertical;margin:8px 0;padding:12px;border:2px solid var(--ln);border-radius:9px;background:var(--cell);color:var(--ink);font:600 15px/1.6 'IBM Plex Mono',monospace}
+.tools-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.tools-row .pre{flex:1}
+.method-library{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin-top:14px}
+.method-tile{display:block;text-align:left;padding:13px;border:2px solid var(--ln);border-radius:10px;background:var(--cell);color:var(--ink);min-height:100px}
+.method-tile strong{display:block;font-size:15px;margin-bottom:5px}.method-tile small{display:block;color:var(--mut);line-height:1.4}.method-tile[aria-expanded="true"]{border-color:var(--b1);background:var(--soft);box-shadow:3px 3px 0 var(--sh)}
+.method-detail{margin-top:10px;padding:14px;border:1.5px solid var(--ln);border-radius:10px;background:var(--cell)}.method-detail h3{margin:0 0 6px;font-size:17px}.method-detail p{margin:5px 0;color:var(--mut)}
+.partition-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:12px 0}.partition-controls label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:14px}.partition-controls input{width:100px;padding:9px;border:2px solid var(--ln);border-radius:8px;background:var(--cell);color:var(--ink)}
+.partition-blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.partition-block{padding:12px;border:1.5px solid var(--b1);border-radius:9px;overflow:auto}.partition-block b{display:block;margin-bottom:6px;color:var(--b1)}
+@media(max-width:520px){.partition-blocks{grid-template-columns:1fr}.tools-row .pre{flex-basis:100%}}
 /* Site footer */
 .site-footer{max-width:900px;margin:8px auto 0;padding:22px 14px 28px;text-align:center;color:var(--mut);font-size:13px;border-top:1px solid var(--ln)}
 .site-footer p{margin:4px 0}
@@ -110,9 +123,22 @@ h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
  <div id="keys"><button data-k="neg" aria-label="Toggle minus sign">±</button><button data-k="/" aria-label="Fraction bar">/</button><button data-k="." aria-label="Decimal point">.</button><button data-k="next" aria-label="Next cell">Next</button></div>
 </section>
 
+
+
 <section class="card">
  <h2>Choose a method</h2>
  <div class="meth" id="meth"></div>
+<h2 style="margin-top:22px">Matrix tools</h2>
+ <p class="mut">Check consistency or partition the current matrix into blocks.</p>
+ <div class="tools-row"><button class="pre" id="consistencyBtn">Check Consistency</button><button class="pre" id="partitionBtn">Partition Matrix</button></div>
+ <div id="consistencyResult" class="method-detail" hidden></div>
+ <div id="partitionPanel" class="method-detail" hidden>
+  <h3>Partition Matrix into Blocks</h3>
+  <p>Choose where to split the current matrix horizontally and vertically. The four blocks are labeled A, B, C, and D.</p>
+  <div class="partition-controls"><label>Split after row<input id="splitRow" type="number" min="1" value="1"></label><label>Split after column<input id="splitCol" type="number" min="1" value="1"></label><button class="pre" id="showPartition">Show partition</button></div>
+  <div id="partitionResult"></div>
+ </div>
+
  <div class="go"><button class="btn p" id="solve">Solve with steps</button><button class="btn" id="clear">Clear</button></div>
 </section>
 
@@ -127,6 +153,14 @@ h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
   <div class="bad"><h3>rank(A) &lt; rank([A | b])</h3><p><b>No solution.</b> Example: <code>x + y = 2</code> and <code>x + y = 5</code> reduce to 0 = 3.</p></div>
  </div>
  <p class="mut">After elimination, a row <code>0 0 0 | c</code> with c ≠ 0 means inconsistent. A row <code>0 0 0 | 0</code> carries no information and drops out.</p>
+</section>
+
+<section class="card" id="methodGuide">
+ <h2 style="margin-top:22px">Method guide</h2>
+ <p class="mut">Select a tile to learn what the method does and see a small example. Select “Use this method” to choose it in the solver.</p>
+ <div class="method-library" id="methodLibrary"></div>
+ <div class="method-detail" id="methodDetail" hidden></div>
+
 </section>
 </div>
 
@@ -157,6 +191,15 @@ const PRE={s3:{sq:[[2,1,-1],[-3,-1,2],[-2,1,2]],sy:[[2,1,-1,8],[-3,-1,2,-11],[-2
 const S={r:3,c:3,v:[],m:'ref',f:null},sys=()=>S.m==='gauss'||S.m==='jordan';
 const NAMES=u=>u<=3?['x','y','z'].slice(0,u):Array.from({length:u},(_,i)=>'x'+SUB[i]);
 $('#meth').innerHTML=MS.map(([k,t])=>`<label><input type="radio" name="m" value="${k}"${k==='ref'?' checked':''}><span>${t}</span></label>`).join('');
+const METHOD_INFO={
+ ref:{title:'Echelon Form (REF)',desc:'Uses row swaps, scaling, and row replacement to create zeros below each pivot. Useful for organizing a matrix and preparing for back-substitution.',example:'[1  2; 0  3] is in echelon form because the second pivot is to the right of the first and entries below pivots are zero.'},
+ rref:{title:'Reduced Echelon Form (RREF)',desc:'Continues elimination until every pivot is 1 and is the only non-zero entry in its column. This makes solutions easier to read directly.',example:'[1  0 | 2; 0  1 | 3] directly gives x = 2 and y = 3.'},
+ rank:{title:'Rank of Matrix',desc:'Counts the pivot positions after row reduction. Rank tells you how many independent rows or columns the matrix contains.',example:'A matrix that reduces to [1  0; 0  0] has rank 1.'},
+ inv:{title:'Inverse of Matrix',desc:'For a square matrix, row-reduces [A | I]. If the left side becomes I, the right side is A⁻¹. Singular matrices do not have an inverse.',example:'For A = [1  0; 0  2], A⁻¹ = [1  0; 0  1/2].'},
+ gauss:{title:'Gauss Elimination',desc:'Creates zeros below pivots, then uses back-substitution from the bottom equation upward to solve a system.',example:'x + y = 3 and x − y = 1. Add the equations to get 2x = 4, so x = 2 and y = 1.'},
+ jordan:{title:'Gauss–Jordan Elimination',desc:'Eliminates entries both below and above pivots, reducing the augmented matrix so the solution can be read directly.',example:'[1  0 | 2; 0  1 | 1] gives x = 2 and y = 1 directly.'}
+};
+$('#methodLibrary').innerHTML=MS.map(([k,t])=>`<button class="method-tile" data-method-info="${k}" aria-expanded="false"><strong>${METHOD_INFO[k].title}</strong><small>${METHOD_INFO[k].desc}</small></button>`).join('');
 
 function fit(){S.v=Array.from({length:S.r},(_,i)=>Array.from({length:S.c},(_,j)=>(S.v[i]&&S.v[i][j])||''))}
 function build(){const s=sys(),nm=NAMES(S.c-1);$('#grid').style.setProperty('--n',S.c);let h='';
@@ -164,6 +207,16 @@ function build(){const s=sys(),nm=NAMES(S.c-1);$('#grid').style.setProperty('--n
  for(let i=0;i<S.r;i++)for(let j=0;j<S.c;j++)h+=`<input data-i="${i}" data-j="${j}" class="${s&&j===S.c-1?'rhs':''}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="0" value="${S.v[i][j]}" aria-label="Row ${i+1}, column ${j+1}">`;
  $('#grid').innerHTML=h;$('#rv').textContent=S.r;$('#cv').textContent=S.c;
  $('#tip').textContent=s?'The last column is the right-hand side b. Type fractions like 3/4 or decimals like 0.5.':S.m==='inv'?'The inverse needs a square matrix. The identity matrix is attached for you.':'Blank cells count as 0. Use the ± and / keys for negatives and fractions.'}
+$('#methodLibrary').addEventListener('click',e=>{const b=e.target.closest('[data-method-info]');if(!b)return;const k=b.dataset.methodInfo,info=METHOD_INFO[k];document.querySelectorAll('.method-tile').forEach(t=>t.setAttribute('aria-expanded',String(t===b)));const d=$('#methodDetail');d.hidden=false;d.innerHTML=`<h3>${info.title}</h3><p>${info.desc}</p><p><b>Example:</b> ${info.example}</p><button class="pre" id="useGuideMethod">Use this method</button>`;$('#useGuideMethod').onclick=()=>{const r=document.querySelector(`input[name="m"][value="${k}"]`);r.checked=true;S.m=k;build();d.scrollIntoView({behavior:'smooth',block:'nearest'})};});
+function showPartition(){
+ const r=Number($('#splitRow').value),c=Number($('#splitCol').value);
+ if(!Number.isInteger(r)||!Number.isInteger(c)||r<1||r>=S.r||c<1||c>=S.c){$('#partitionResult').innerHTML='<p class="mut">Choose a split between rows 1 and '+(S.r-1)+' and columns 1 and '+(S.c-1)+'. The split must leave a block on each side.</p>';return}
+ const names=[['A',0,r,0,c],['B',0,r,c,S.c],['C',r,S.r,0,c],['D',r,S.r,c,S.c]];
+ $('#partitionResult').innerHTML='<div class="partition-blocks">'+names.map(([n,rs,re,cs,ce])=>`<div class="partition-block"><b>Block ${n}</b><div class="mw"><div class="mx" style="grid-template-columns:repeat(${ce-cs},auto)">${S.v.slice(rs,re).flatMap(row=>row.slice(cs,ce)).map(v=>`<div>${String(v||'0').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`).join('')}</div></div></div>`).join('')+'</div><p class="mut" style="margin-top:10px">Partitioned at row ${r} and column ${c}: M = [ A  B ; C  D ].</p>';
+}
+$('#showPartition').onclick=showPartition;
+$('#partitionBtn').onclick=()=>{$('#partitionPanel').hidden=!$('#partitionPanel').hidden;if(!$('#partitionPanel').hidden){$('#splitRow').max=S.r-1;$('#splitCol').max=S.c-1;$('#splitRow').value=Math.max(1,Math.floor(S.r/2));$('#splitCol').value=Math.max(1,Math.floor(S.c/2));showPartition();$('#partitionPanel').scrollIntoView({behavior:'smooth',block:'nearest'})}};
+$('#consistencyBtn').onclick=()=>{const box=$('#consistencyResult');box.hidden=!box.hidden;if(box.hidden)return;const raw=S.v.map(row=>row.map(pf));if(raw.some(row=>row.some(x=>!x))){box.innerHTML='<h3>Cannot check consistency</h3><p>Correct invalid entries in the matrix first.</p>';return}if(S.c<2){box.innerHTML='<h3>Augmented matrix required</h3><p>For a system, use the last column as the right-hand side b and at least one coefficient column.</p>';return}const u=S.c-1,A=raw.map(row=>row.map(x=>new F(x.n,x.d))),W=A.map(row=>row.slice()),res=reduce(W,u,false,u),bad=W.some(row=>row.slice(0,u).every(x=>x.z)&&!row[u].z),rankA=res.piv.length;box.innerHTML=`<h3>${bad?'Inconsistent system — no solution':'Consistent system'}</h3><p>${bad?'At least one reduced row says 0 = a non-zero value, so the equations contradict each other.':'The coefficient rank matches the augmented rank, so at least one solution exists.'}</p><p><b>rank(A):</b> ${rankA} · <b>rank([A | b]):</b> ${rankA+(bad?1:0)} · <b>Unknowns:</b> ${u}</p>${!bad?`<p>${rankA===u?'The system has a unique solution.':'The system has infinitely many solutions because at least one variable is free.'}</p>`:''}`;box.scrollIntoView({behavior:'smooth',block:'nearest'})};
 function upd(t){t.classList.remove('err');S.v[+t.dataset.i][+t.dataset.j]=t.value}
 function nxt(el){const a=[...document.querySelectorAll('#grid input')],n=a[a.indexOf(el)+1];n?n.focus():el.blur()}
 const gd=$('#grid');
@@ -236,7 +289,7 @@ function run(){
     :vd('wa','∞','Consistent: infinitely many solutions',`rank(A) = rank([A | b]) = ${rA}, which is less than ${u} unknowns, so ${u-rA} variable${u-rA>1?'s are':' is'} free.`))
     +`<div class="sol">${nm.map((n,j)=>`<div>${n} = <b>${one1?s.X[j][0].h():ex(s.X[j],s.P)}</b></div>`).join('')}</div>`;
    ext=blk('★',m==='gauss'?'Back-substitution, from the bottom row up':'Read the solution straight from the matrix',s.L.join(''))}}
- $('#out').innerHTML=`<section class="card"><h2>Answer</h2>${ans}</section><section class="card"><h2>Step by step</h2>${pre}${res.steps.map((s,i)=>blk(i+1,s.t,mh(s.M,s.o))).join('')}${ext}</section>`;
+ $('#out').innerHTML=`<section class="card"><h2>Step by step</h2>${pre}${res.steps.map((s,i)=>blk(i+1,s.t,mh(s.M,s.o))).join('')}${ext}</section><section class="card answer-card"><h2>Final Answer</h2>${ans}</section>`;
  $('#out').scrollIntoView({behavior:'smooth'})}
 $('#solve').onclick=run;
 fit();build();

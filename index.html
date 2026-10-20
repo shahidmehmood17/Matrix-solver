@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matrix Solver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f9;--grid:rgba(25,80,150,.09);--card:#fff;--ink:#0f2540;--mut:#4f6580;--ln:rgba(15,37,64,.2);--b1:#1d5fd1;--onb:#fff;--hi:#ffb020;--hit:#1a1200;--ok:#0b8a5f;--wa:#a85f00;--bad:#d12f5d;--cell:#fff;--soft:#e4edfa;--sh:#0f2540;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1a31;--grid:rgba(120,170,255,.08);--card:#10264a;--ink:#e8f0ff;--mut:#9db3d4;--ln:rgba(200,220,255,.22);--b1:#6ea8ff;--onb:#08162b;--hi:#ffc247;--ok:#3ddc97;--wa:#ffb84d;--bad:#ff7a9c;--cell:#0c1e3b;--soft:#173561;--sh:rgba(110,168,255,.4)}}
+:root[data-theme="dark"]{--bg:#0a1a31;--grid:rgba(120,170,255,.08);--card:#10264a;--ink:#e8f0ff;--mut:#9db3d4;--ln:rgba(200,220,255,.22);--b1:#6ea8ff;--onb:#08162b;--hi:#ffc247;--ok:#3ddc97;--wa:#ffb84d;--bad:#ff7a9c;--cell:#0c1e3b;--soft:#173561;--sh:rgba(110,168,255,.4)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font:500 16px/1.5 'Bricolage Grotesque',system-ui,sans-serif;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px,var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 56px}
+header{display:flex;align-items:center;gap:12px}
+header svg{width:46px;height:46px;flex:none;color:var(--ink)}
+h1{margin:0;font-size:clamp(28px,7vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.sub{margin:4px 0 0;color:var(--mut);font-size:14px}
+.sp{flex:1}
+#th{width:42px;height:42px;border:2px solid var(--ink);border-radius:10px;background:var(--card);font-size:18px}
+.card{margin-top:18px;padding:18px;background:var(--card);border:2px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--sh)}
+h2{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stp{display:flex;align-items:center;gap:6px;padding:4px 4px 4px 14px;border:2px solid var(--ink);border-radius:10px;background:var(--cell);font-weight:700}
+.stp b{min-width:22px;text-align:center;font-size:20px}
+.stp button{width:38px;height:38px;border:0;border-radius:7px;background:var(--soft);color:var(--b1);font-size:22px;font-weight:800}
+.pre{min-height:42px;padding:0 14px;border:2px solid var(--ink);border-radius:8px;background:var(--cell);font-weight:700;font-size:14.5px}
+.pre.d{border-style:dashed}
+.pre:active,.btn:active{transform:translate(2px,2px)}
+.tip{margin:14px 0 10px;padding:10px 14px;border-left:5px solid var(--hi);background:var(--soft);border-radius:4px 10px 10px 4px;font-size:14.5px}
+#gw{overflow-x:auto;padding:8px 6px 12px;text-align:center}
+#grid{--cs:clamp(42px,11.5vw,68px);display:inline-grid;grid-template-columns:repeat(var(--n),var(--cs));gap:7px;text-align:left}
+#grid input{width:var(--cs);height:calc(var(--cs)*.88);min-height:46px;padding:0;text-align:center;font:600 18px 'IBM Plex Mono',ui-monospace,monospace;color:var(--ink);background:var(--cell);border:2px solid var(--ink);border-radius:6px;outline:0}
+#grid input:focus{background:var(--hi);color:var(--hit);box-shadow:3px 3px 0 var(--sh)}
+#grid input.rhs{background:var(--soft);border-style:dashed}
+#grid input.rhs:focus{background:var(--hi)}
+#grid input.err{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad)}
+.lb{text-align:center;font:600 14px 'IBM Plex Mono',monospace;color:var(--mut)}
+#keys{display:flex;gap:8px;justify-content:center}
+#keys button{flex:1;max-width:110px;min-height:44px;border:2px solid var(--ink);border-radius:8px;background:var(--cell);font:600 18px 'IBM Plex Mono',monospace}
+.meth{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px}
+.meth label{position:relative}
+.meth input{position:absolute;opacity:0;inset:0;margin:0}
+.meth span{display:flex;align-items:center;min-height:48px;padding:0 14px;border:2px solid var(--ink);border-radius:8px;background:var(--cell);font-weight:700;font-size:15px}
+.meth input:checked+span{background:var(--b1);color:var(--onb);box-shadow:3px 3px 0 var(--sh)}
+.meth input:focus-visible+span{outline:3px solid var(--hi);outline-offset:2px}
+.go{margin-top:16px;display:flex;gap:10px}
+.btn{flex:1;min-height:54px;padding:0 22px;border:2px solid var(--ink);border-radius:10px;background:var(--cell);font-weight:800}
+.btn.p{flex:2;background:var(--hi);color:var(--hit);font-size:17px;box-shadow:4px 4px 0 var(--sh)}
+.vd{display:flex;gap:14px;align-items:center;padding:14px;border:2px solid var(--vc);border-radius:12px;background:color-mix(in srgb,var(--vc) 11%,transparent)}
+.vd i{flex:none;width:46px;height:46px;border-radius:8px;display:grid;place-items:center;background:var(--vc);color:var(--card);font:800 24px 'Bricolage Grotesque',sans-serif;font-style:normal}
+.vd h3,.cs h3{margin:0;font-size:18px;line-height:1.25}
+.vd p,.cs p{margin:3px 0 0;color:var(--mut);font-size:14.5px}
+.ok{--vc:var(--ok)}.wa{--vc:var(--wa)}.bad{--vc:var(--bad)}
+.sol{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+.sol div{padding:8px 16px;border:2px solid var(--ink);border-radius:8px;background:var(--cell);font:600 20px 'IBM Plex Mono',monospace}
+.sol b{color:var(--b1)}
+.st{margin-top:12px;padding:12px 14px;border:1.5px solid var(--ln);border-left:5px solid var(--b1);border-radius:4px 12px 12px 4px;background:var(--cell)}
+.sh{display:flex;gap:10px;align-items:flex-start}
+.sh p{margin:2px 0 6px;font-weight:700;font-size:15px}
+.sn{flex:none;min-width:28px;height:28px;border-radius:6px;background:var(--ink);color:var(--card);font-size:14px;font-weight:800;display:grid;place-items:center}
+.mw{overflow-x:auto;padding:4px 2px}
+.mx{display:inline-grid;gap:4px 6px;padding:8px 12px;border:solid var(--ink);border-width:0 3px;border-radius:8px}
+.mx div{min-width:42px;padding:6px 8px;border-radius:5px;text-align:center;font:600 16px 'IBM Plex Mono',monospace;white-space:nowrap}
+.mx .bar{border-left:2px dashed var(--mut);border-radius:0 5px 5px 0}
+.mx .hi{background:var(--hi);color:var(--hit)}
+.mx .pv{background:var(--soft);color:var(--b1);font-weight:700}
+.ln{padding:7px 0;border-bottom:1px dashed var(--ln);font:600 15px 'IBM Plex Mono',monospace;overflow-wrap:anywhere}
+.ln:last-child{border:0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.8em;line-height:1.15}
+.fr b{padding:0 .25em;font-weight:600}.fr b:first-child{border-bottom:1.5px solid currentColor}
+.cs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.cs>div{padding:14px;border:2px solid var(--vc);border-radius:10px;background:color-mix(in srgb,var(--vc) 9%,transparent)}
+.cs code{font:600 14px 'IBM Plex Mono',monospace}
+.mut{color:var(--mut);font-size:14.5px;margin:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M13 6H6v36h7M35 6h7v36h-7"/><g fill="currentColor" stroke="none"><circle cx="17" cy="17" r="3.2" fill="#ffb020"/><circle cx="31" cy="17" r="3.2"/><circle cx="17" cy="31" r="3.2"/><circle cx="31" cy="31" r="3.2"/></g></svg>
+ <div><h1>Matrix Solver</h1><p class="sub">Row-reduce any matrix with every step shown, in exact fractions.</p></div>
+ <span class="sp"></span><button id="th" aria-label="Switch light or dark theme">🌙</button>
+</header>
+
+<section class="card">
+ <h2>Enter your matrix</h2>
+ <div class="row">
+  <div class="stp">Rows <b id="rv">3</b><button data-s="r" data-d="-1" aria-label="Remove a row">−</button><button data-s="r" data-d="1" aria-label="Add a row">+</button></div>
+  <div class="stp">Cols <b id="cv">3</b><button data-s="c" data-d="-1" aria-label="Remove a column">−</button><button data-s="c" data-d="1" aria-label="Add a column">+</button></div>
+ </div>
+ <div class="row" style="margin-top:12px">
+  <button class="pre" data-p="s3">3×3 preset</button>
+  <button class="pre" data-p="s4">4×4 preset</button>
+  <button class="pre d" data-p="none">No-solution demo</button>
+  <button class="pre d" data-p="inf">Infinite-solutions demo</button>
+ </div>
+ <div class="tip" id="tip"></div>
+ <div id="gw"><div id="grid"></div></div>
+ <div id="keys"><button data-k="neg" aria-label="Toggle minus sign">±</button><button data-k="/" aria-label="Fraction bar">/</button><button data-k="." aria-label="Decimal point">.</button><button data-k="next" aria-label="Next cell">Next</button></div>
+</section>
+
+<section class="card">
+ <h2>Choose a method</h2>
+ <div class="meth" id="meth"></div>
+ <div class="go"><button class="btn p" id="solve">Solve with steps</button><button class="btn" id="clear">Clear</button></div>
+</section>
+
+<div id="out"></div>
+
+<section class="card">
+ <h2>Consistent or inconsistent?</h2>
+ <p class="mut">A system <b>Ax = b</b> is consistent when it has at least one solution. Compare the rank of A with the rank of the augmented matrix [A | b], where n is the number of unknowns.</p>
+ <div class="cs">
+  <div class="ok"><h3>rank(A) = rank([A | b]) = n</h3><p><b>Unique solution.</b> Example: <code>x + y = 3</code> and <code>x − y = 1</code> give x = 2, y = 1.</p></div>
+  <div class="wa"><h3>rank(A) = rank([A | b]) &lt; n</h3><p><b>Infinitely many solutions.</b> Example: <code>x + y = 2</code> and <code>2x + 2y = 4</code> are the same line, so y can be any value.</p></div>
+  <div class="bad"><h3>rank(A) &lt; rank([A | b])</h3><p><b>No solution.</b> Example: <code>x + y = 2</code> and <code>x + y = 5</code> reduce to 0 = 3.</p></div>
+ </div>
+ <p class="mut">After elimination, a row <code>0 0 0 | c</code> with c ≠ 0 means inconsistent. A row <code>0 0 0 | 0</code> carries no information and drops out.</p>
+</section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),SUB='₁₂₃₄₅₆₇';
+const g=(a,b)=>{a<0n&&(a=-a);b<0n&&(b=-b);while(b){[a,b]=[b,a%b]}return a};
+class F{constructor(n,d=1n){if(d<0n){n=-n;d=-d}const k=g(n,d)||1n;this.n=n/k;this.d=d/k}
+ add(o){return new F(this.n*o.d+o.n*this.d,this.d*o.d)}sub(o){return new F(this.n*o.d-o.n*this.d,this.d*o.d)}
+ mul(o){return new F(this.n*o.n,this.d*o.d)}div(o){return new F(this.n*o.d,this.d*o.n)}
+ get z(){return this.n===0n}neg(){return new F(-this.n,this.d)}
+ t(){return(this.d===1n?''+this.n:this.n+'/'+this.d).replace('-','−')}
+ h(){const ng=this.n<0n,a=ng?-this.n:this.n,m=ng?'−':'';return this.d===1n?m+a:`${m}<span class="fr"><b>${a}</b><b>${this.d}</b></span>`}}
+const one=f=>f.n===1n&&f.d===1n;
+function pf(s){s=(s||'').trim().replace(/−/g,'-').replace(',','.');if(s==='')return new F(0n);
+ const m=s.match(/^([+-]?)(\d*\.?\d+|\d+\.)(?:\/(\d*\.?\d+|\d+\.))?$/);if(!m)return null;
+ const dc=t=>{const[a,b='']=t.split('.');return new F(BigInt(a+b||'0'),10n**BigInt(b.length))};
+ let v=dc(m[2]);if(m[3]){const d=dc(m[3]);if(d.z)return null;v=v.div(d)}return m[1]==='-'?v.neg():v}
+
+const MS=[['ref','Echelon Form'],['rref','Reduced Echelon'],['rank','Rank of Matrix'],['inv','Inverse of Matrix'],['gauss','Gauss Elimination'],['jordan','Gauss–Jordan']];
+const PRE={s3:{sq:[[2,1,-1],[-3,-1,2],[-2,1,2]],sy:[[2,1,-1,8],[-3,-1,2,-11],[-2,1,2,-3]]},
+ s4:{sq:[[1,1,1,1],[1,2,3,4],[1,3,6,10],[1,4,10,20]],sy:[[1,1,1,1,2],[1,2,3,4,5],[1,3,6,10,10],[1,4,10,20,17]]},
+ none:[[1,1,1,3],[1,1,1,5],[1,-1,0,1]],inf:[[1,1,1,6],[2,2,2,12],[1,-1,0,0]]};
+const S={r:3,c:3,v:[],m:'ref',f:null},sys=()=>S.m==='gauss'||S.m==='jordan';
+const NAMES=u=>u<=3?['x','y','z'].slice(0,u):Array.from({length:u},(_,i)=>'x'+SUB[i]);
+$('#meth').innerHTML=MS.map(([k,t])=>`<label><input type="radio" name="m" value="${k}"${k==='ref'?' checked':''}><span>${t}</span></label>`).join('');
+
+function fit(){S.v=Array.from({length:S.r},(_,i)=>Array.from({length:S.c},(_,j)=>(S.v[i]&&S.v[i][j])||''))}
+function build(){const s=sys(),nm=NAMES(S.c-1);$('#grid').style.setProperty('--n',S.c);let h='';
+ if(s)for(let j=0;j<S.c;j++)h+=`<span class="lb">${j===S.c-1?'b':nm[j]}</span>`;
+ for(let i=0;i<S.r;i++)for(let j=0;j<S.c;j++)h+=`<input data-i="${i}" data-j="${j}" class="${s&&j===S.c-1?'rhs':''}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="0" value="${S.v[i][j]}" aria-label="Row ${i+1}, column ${j+1}">`;
+ $('#grid').innerHTML=h;$('#rv').textContent=S.r;$('#cv').textContent=S.c;
+ $('#tip').textContent=s?'The last column is the right-hand side b. Type fractions like 3/4 or decimals like 0.5.':S.m==='inv'?'The inverse needs a square matrix. The identity matrix is attached for you.':'Blank cells count as 0. Use the ± and / keys for negatives and fractions.'}
+function upd(t){t.classList.remove('err');S.v[+t.dataset.i][+t.dataset.j]=t.value}
+function nxt(el){const a=[...document.querySelectorAll('#grid input')],n=a[a.indexOf(el)+1];n?n.focus():el.blur()}
+const gd=$('#grid');
+gd.addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^0-9.\-\/,−]/g,'');upd(e.target)});
+gd.addEventListener('focusin',e=>{S.f=e.target;setTimeout(()=>e.target.select&&e.target.select(),0)});
+gd.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nxt(e.target)}});
+$('#keys').addEventListener('mousedown',e=>e.preventDefault());
+$('#keys').addEventListener('click',e=>{const b=e.target.closest('button'),el=S.f||document.querySelector('#grid input');if(!b||!el)return;const k=b.dataset.k;
+ if(k==='next')return nxt(el);el.value=k==='neg'?(el.value.startsWith('-')?el.value.slice(1):'-'+el.value):el.value+k;upd(el);el.focus()});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.s){const k=b.dataset.s,l=k==='r'?6:7;S[k]=Math.min(l,Math.max(1,S[k]+ +b.dataset.d));fit();build()}
+ else if(b.dataset.p)load(b.dataset.p)});
+$('#meth').onchange=e=>{S.m=e.target.value;build()};
+function load(k){let d=PRE[k];if(!Array.isArray(d))d=sys()?d.sy:d.sq;else if(!sys()){S.m='jordan';$('input[value=jordan]').checked=true}
+ S.r=d.length;S.c=d[0].length;S.v=d.map(r=>r.map(String));build();$('#out').innerHTML=''}
+$('#clear').onclick=()=>{S.v=[];fit();build();$('#out').innerHTML=''};
+const dm=()=>document.documentElement.dataset.theme?document.documentElement.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+$('#th').textContent=dm()?'☀️':'🌙';
+$('#th').onclick=()=>{document.documentElement.dataset.theme=dm()?'light':'dark';$('#th').textContent=dm()?'☀️':'🌙'};
+
+function mh(M,{aug=-1,hi=null,pv=[]}={}){let h=`<div class="mw"><div class="mx" style="grid-template-columns:repeat(${M[0].length},auto)">`;
+ M.forEach((r,i)=>r.forEach((x,j)=>{h+=`<div class="${j===aug?'bar ':''}${hi&&hi[0]===i&&hi[1]===j?'hi':pv.some(p=>p[0]===i&&p[1]===j)?'pv':''}">${x.h()}</div>`}));return h+'</div></div>'}
+function reduce(A,pc,rd,aug=-1){const m=A.length,steps=[],piv=[];let r=0;
+ const lg=(t,hi)=>steps.push({t,M:A.map(x=>x.slice()),o:{aug,hi}});
+ lg('Starting matrix'+(aug<0?'':S.m==='inv'?' with the identity attached on the right':' [A | b]'));
+ for(let c=0;c<pc&&r<m;c++){let p=-1;for(let i=r;i<m;i++)if(!A[i][c].z){p=i;break}
+  if(p<0)continue;
+  if(p!==r){[A[p],A[r]]=[A[r],A[p]];lg(`Swap R${r+1} ↔ R${p+1} to bring a non-zero pivot into column ${c+1}`,[r,c])}
+  const pv=A[r][c];
+  if(rd&&!one(pv)){A[r]=A[r].map(x=>x.div(pv));lg(`R${r+1} → R${r+1} ÷ ${pv.t()}, so the pivot becomes 1`,[r,c])}
+  for(let i=rd?0:r+1;i<m;i++){if(i===r||A[i][c].z)continue;const f=A[i][c].div(A[r][c]),ng=f.n<0n,a=ng?f.neg():f,k=one(a)?'':a.d===1n?a.t()+'·':`(${a.t()})·`;
+   A[i]=A[i].map((x,j)=>x.sub(f.mul(A[r][j])));lg(`R${i+1} → R${i+1} ${ng?'+':'−'} ${k}R${r+1}`,[r,c])}
+  piv.push([r,c]);r++}
+ if(steps.length===1)lg('Nothing to do: the matrix already has the required form.');
+ return{piv,steps}}
+function ex(v,P){let s=v[0].z?'':v[0].t();v.slice(1).forEach((c,i)=>{if(c.z)return;const ng=c.n<0n,a=ng?c.neg():c,k=one(a)?'':a.d===1n?a.t():`(${a.t()})`;s+=s?(ng?' − ':' + ')+k+P[i]:(ng?'−':'')+k+P[i]});return s||'0'}
+function sol(W,piv,u,nm){const pc=piv.map(p=>p[1]),fr=[];for(let j=0;j<u;j++)if(!pc.includes(j))fr.push(j);
+ const P=fr.map((_,i)=>'t'+SUB[i]),X=[],L=[];
+ fr.forEach((j,i)=>{X[j]=Array.from({length:fr.length+1},(_,q)=>new F(q===i+1?1n:0n))});
+ for(let q=piv.length-1;q>=0;q--){const[r,c]=piv[q],p=W[r][c];let v=[W[r][u],...fr.map(()=>new F(0n))],tm='';
+  for(let j=c+1;j<u;j++){const a=W[r][j];if(a.z)continue;v=v.map((x,i)=>x.sub(a.mul(X[j][i])));tm+=` − (${a.t()})·(${ex(X[j],P)})`}
+  v=v.map(x=>x.div(p));const f=(tm?`(${W[r][u].t()}${tm})`:W[r][u].t())+(one(p)?'':` ÷ ${p.t()}`),e=ex(v,P);
+  X[c]=v;L.push(`<div class="ln">${nm[c]} = ${f===e?'':f+' = '}<b>${e}</b></div>`)}
+ fr.forEach((j,i)=>L.push(`<div class="ln">${nm[j]} = <b>${P[i]}</b> (free: any real number)</div>`));
+ return{X,P,L}}
+const vd=(c,i,t,p)=>`<div class="vd ${c}"><i>${i}</i><div><h3>${t}</h3><p>${p}</p></div></div>`;
+const blk=(n,t,b)=>`<div class="st"><div class="sh"><span class="sn">${n}</span><p>${t}</p></div>${b}</div>`;
+const msg=t=>{$('#out').innerHTML=`<section class="card">${vd('bad','!',t,'Fix the highlighted input and try again.')}</section>`};
+
+function run(){
+ const A=S.v.map((r,i)=>r.map((s,j)=>{const x=pf(s);if(!x){const el=document.querySelector(`#grid input[data-i="${i}"][data-j="${j}"]`);el&&el.classList.add('err')}return x}));
+ if(A.some(r=>r.includes(null)))return msg('Some cells are not valid numbers. Use digits, a decimal point or a fraction like 3/4.');
+ const R=A.length,C=A[0].length,m=S.m;let W=A.map(r=>r.slice()),res,ans='',pre='',ext='';
+ const ci=p=>p.map(x=>x[1]+1).join(', ');
+ if(m==='ref'||m==='rref'){res=reduce(W,C,m==='rref');
+  ans=vd('ok','✓',m==='rref'?'Reduced row echelon form':'Row echelon form',m==='rref'?'Every pivot is 1 and is the only non-zero entry in its column.':'Pivots step down to the right and every entry below a pivot is 0.')+mh(W,{pv:res.piv})}
+ else if(m==='rank'){res=reduce(W,C,false);const k=res.piv.length;
+  ans=vd('ok',k,`Rank = ${k}`,`${k} pivot${k===1?'':'s'} (columns ${ci(res.piv)||'none'}). Nullity = ${C} − ${k} = ${C-k}.`)+mh(W,{pv:res.piv})}
+ else if(m==='inv'){if(R!==C)return msg('The inverse needs a square matrix (rows = columns).');
+  W=A.map((r,i)=>[...r,...r.map((_,j)=>new F(i===j?1n:0n))]);res=reduce(W,R,true,R);
+  ans=res.piv.length<R?vd('bad','✕','Not invertible',`The rank is ${res.piv.length}, less than ${R}, so the matrix is singular (determinant = 0).`)
+   :vd('ok','✓','Inverse found',`The left half became the identity, so the right half is A⁻¹.`)+mh(W.map(r=>r.slice(R)))}
+ else{const u=C-1;if(u<1)return msg('Add at least 2 columns: one per variable plus the right-hand side b.');
+  const nm=NAMES(u);res=reduce(W,u,m==='jordan',u);const piv=res.piv,rA=piv.length,bad=W.findIndex(r=>r.slice(0,u).every(x=>x.z)&&!r[u].z);
+  pre=blk('=','The system of equations',A.map(r=>{let s='';r.slice(0,u).forEach((a,j)=>{if(a.z)return;const ng=a.n<0n,b=ng?a.neg():a,k=one(b)?'':b.d===1n?b.t():`(${b.t()})`;s+=(s?(ng?' − ':' + '):(ng?'−':''))+k+nm[j]});return `<div class="ln">${s||'0'} = ${r[u].t()}</div>`}).join(''));
+  if(bad>=0){ans=vd('bad','✕','Inconsistent: no solution',`rank(A) = ${rA} but rank([A | b]) = ${rA+1}. The ranks differ.`);
+   ext=blk('✕','Why there is no solution',`<div class="ln">Row ${bad+1} reads 0 = ${W[bad][u].t()}, which is impossible. The equations contradict each other.</div>`)}
+  else{const s=sol(W,piv,u,nm),one1=rA===u;
+   ans=(one1?vd('ok','✓','Consistent: unique solution',`rank(A) = rank([A | b]) = ${rA} = number of unknowns (${u}).`)
+    :vd('wa','∞','Consistent: infinitely many solutions',`rank(A) = rank([A | b]) = ${rA}, which is less than ${u} unknowns, so ${u-rA} variable${u-rA>1?'s are':' is'} free.`))
+    +`<div class="sol">${nm.map((n,j)=>`<div>${n} = <b>${one1?s.X[j][0].h():ex(s.X[j],s.P)}</b></div>`).join('')}</div>`;
+   ext=blk('★',m==='gauss'?'Back-substitution, from the bottom row up':'Read the solution straight from the matrix',s.L.join(''))}}
+ $('#out').innerHTML=`<section class="card"><h2>Answer</h2>${ans}</section><section class="card"><h2>Step by step</h2>${pre}${res.steps.map((s,i)=>blk(i+1,s.t,mh(s.M,s.o))).join('')}${ext}</section>`;
+ $('#out').scrollIntoView({behavior:'smooth'})}
+$('#solve').onclick=run;
+fit();build();
+</script>
+</body>
+</html>
